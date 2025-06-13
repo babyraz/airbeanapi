@@ -3,6 +3,7 @@ import { getMenu, getProduct } from '../services/menu.js';
 import Product from '../models/product.js';
 import { v4 as uuid } from 'uuid';
 import { isAdmin } from '../middlewares/isAdmin.js';
+import { authenticateUser } from '../middlewares/authenticateUser.js';
 
 const router = Router();
 
@@ -21,7 +22,7 @@ router.get('/', async (req, res, next) => {
     }
 })
 
-router.post('/', isAdmin, async (req, res, next) => {
+router.post('/', authenticateUser, isAdmin, async (req, res, next) => {
     try {
         const { title, desc, price } = req.body;
 
@@ -30,8 +31,10 @@ router.post('/', isAdmin, async (req, res, next) => {
             desc,
             price,
             prodId: `product-${uuid().substring(0, 5)}`
-        });
-
+            },  {
+                timestamps: true
+                });
+                
         const savedProduct = await newProduct.save();
 
         res.status(201).json(savedProduct);
@@ -40,7 +43,7 @@ router.post('/', isAdmin, async (req, res, next) => {
     }
 });
 
-router.put('/:prodId', isAdmin, async (req, res, next) => {
+router.put('/:prodId', authenticateUser, isAdmin, async (req, res, next) => {
     try {
         const { title, desc, price } = req.body;
 
@@ -62,7 +65,7 @@ router.put('/:prodId', isAdmin, async (req, res, next) => {
     }
 })
 
-router.delete('/:prodId', isAdmin, async (req, res, next) => {
+router.delete('/:prodId', authenticateUser, isAdmin, async (req, res, next) => {
     const prodId = req.params.prodId;
 
     try {
