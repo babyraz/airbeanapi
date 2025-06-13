@@ -1,0 +1,257 @@
+openapi: 3.0.1
+info:
+  title: Airbean API
+  version: 1.0.0
+  description: API documentation for the Airbean project
+
+paths:
+  /api/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Log in a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Logged in successfully!
+                  token:
+                    type: string
+                    example: Bearer eyJhbGciOiJIUzI1NiIs...
+        '400':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Wrong username or password
+  /api/auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+                - role
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+                  example: user
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: New user registered successfully
+        '400':
+          description: Registration failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: Registration unsuccessful
+  /api/auth/logout:
+    get:
+      tags:
+        - Auth
+      summary: Log out a user
+      responses:
+        '200':
+          description: Logs user out (mock response)
+          content:
+            application/json:
+              schema:
+                type: string
+                example: Logged out!
+  /api/menu:
+    post:
+      tags:
+        - Menu
+      summary: Add a new product (admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - desc
+                - price
+              properties:
+                title:
+                  type: string
+                desc:
+                  type: string
+                price:
+                  type: number
+      responses:
+        '201':
+          description: Product added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  title:
+                    type: string
+                  desc:
+                    type: string
+                  price:
+                    type: number
+                  prodId:
+                    type: string
+        '403':
+          description: Unauthorized or forbidden
+        '500':
+          description: Server error
+
+  /api/menu/{prodId}:
+    put:
+      tags:
+        - Menu
+      summary: Update an existing product (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: prodId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                desc:
+                  type: string
+                price:
+                  type: number
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                  desc:
+                    type: string
+                  price:
+                    type: number
+                  prodId:
+                    type: string
+        '404':
+          description: Product not found
+
+    delete:
+      tags:
+        - Menu
+      summary: Delete a product (admin only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: prodId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Cappuccino has been deleted
+                  deletedProduct:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                      desc:
+                        type: string
+                      price:
+                        type: number
+                      prodId:
+                        type: string
+        '404':
+          description: Product not found
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
